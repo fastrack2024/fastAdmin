@@ -104,6 +104,4 @@ function Overview({ data }: OverviewProps) {
   );
 }
 
-/// comment
-
 export default Overview;
