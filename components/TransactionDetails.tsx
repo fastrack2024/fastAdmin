@@ -65,6 +65,7 @@ function TransactionDetails({ transaction }: { transaction: TransactionType }) {
     updatedAt,
     transactionId: id,
   } = transaction;
+  console.log(transaction);
 
   const isAutomaticSuccess =
     createdAt === updatedAt && transactionStatus === "success";
@@ -179,6 +180,16 @@ function TransactionDetails({ transaction }: { transaction: TransactionType }) {
               <span className="">${fee}</span>
             </div>
           </div>
+          {transaction.user?.email && (
+            <div className="flex items-center justify-between border-b-2 border-dashed border-siteHeadingDark/25 py-3 font-dm_sans">
+              <span className="text-lg font-semibold text-siteHeadingDark/70">
+                User Email
+              </span>
+              <div className="flex items-center gap-2 text-lg font-black text-black">
+                <span>{transaction.user.email}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-4 w-full items-center">

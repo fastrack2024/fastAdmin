@@ -34,6 +34,10 @@ export type TransactionType = {
   fee: number;
   createdAt: string;
   updatedAt: string;
+  user: {
+    _id: string;
+    email: string;
+  };
 };
 
 export type UserDataType = {

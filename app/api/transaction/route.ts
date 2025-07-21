@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const transaction = await Transaction.findOne({
       transactionId: id,
-    });
+    }).populate("user", "email");
 
     if (!transaction) {
       return new Response("transaction not found", { status: 404 });
