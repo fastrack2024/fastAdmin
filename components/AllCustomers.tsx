@@ -95,7 +95,7 @@ function AllCustomers({ allCustomers }: AllCustomersProps) {
               name=""
               id=""
               value={searchTerm}
-              placeholder="search by name.."
+              placeholder="search by name..."
               className=" focus:border-0 focus:outline-0 active:outline-0 bg-transparent active:border-0 border-0 text-siteHeadingDark font-semibold font-dm_sans w-full"
               onChange={(e) => setSearchTerm(e.target.value)}
             />
