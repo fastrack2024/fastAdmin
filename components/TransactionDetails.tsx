@@ -122,7 +122,7 @@ function TransactionDetails({ transaction }: { transaction: TransactionType }) {
           </span>
         </div>
       </div>
-      <div className="flex w-full max-w-[500px] flex-col rounded-2xl border border-siteHeadingDark/25 p-[55px]">
+      <div className="flex w-full max-w-[502px] flex-col rounded-2xl border border-siteHeadingDark/25 p-[55px]">
         {timeLineArray.map((timeLine, index, arr) => (
           <div
             key={index}
