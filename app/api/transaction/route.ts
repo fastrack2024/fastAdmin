@@ -64,9 +64,13 @@ import { connectToDatabase } from "@/utils/database";
 
 export async function POST(req: Request) {
   try {
-    const { transactionId } = await req.json();
+    const body = await req.json();
+    console.log("📥 Incoming body:", body);
+
+    const { transactionId } = body;
 
     if (!transactionId) {
+      console.error("❌ Missing transactionId in request body");
       return new Response(JSON.stringify({ error: "Transaction ID is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -74,10 +78,13 @@ export async function POST(req: Request) {
     }
 
     await connectToDatabase();
+    console.log("✅ Database connected");
 
     const transaction = await Transaction.findOne({ transactionId }).populate("user", "email");
+    console.log("🔎 Query result:", transaction);
 
     if (!transaction) {
+      console.error("❌ Transaction not found for ID:", transactionId);
       return new Response(JSON.stringify({ error: "Transaction not found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },

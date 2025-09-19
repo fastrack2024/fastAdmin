@@ -118,22 +118,18 @@ export const fetchCustomer = async (userId: string) => {
 };
 
 export const fetchTransaction = async (transactionId: string) => {
-  try {
-    const res = await fetch("/api/transaction", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transactionId }),
-    });
+  const res = await fetch("/api/transaction", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ transactionId }),
+  });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || "Failed to fetch transaction");
-    }
-
-    return res.json();
-  } catch (error) {
-    throw error;
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to fetch transaction");
   }
+
+  return res.json();
 };
 
 
