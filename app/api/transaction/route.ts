@@ -93,6 +93,8 @@ export async function POST(req: Request) {
 
     console.log("🔎 Searching for transaction with ID:", id);
 
+    console.log("🔍 Received ID from request body:", id, typeof id);
+    
     // Connect to the database
     await connectToDatabase()
       .then(() => console.log("✅ Database connection successful"))
