@@ -86,6 +86,27 @@ export async function approveTransaction({
   }
 }
 
+export const getTransactionById = async (transactionId: string) => {
+try {
+await connectToDatabase();
+
+const transaction = await Transaction.findOne({
+transactionId: transactionId,
+}).populate("user", "email");
+
+console.log(transaction, "from transaction action");
+
+if (!transaction) {
+throw new Error("Transaction not found");
+}
+
+return JSON.parse(JSON.stringify(transaction));
+} catch (error) {
+handleError(error, "getTransactionById");
+throw error;
+}
+};
+
 export const createTransaction = async (
   transactionDetails: CreateTransactionType
 ) => {
