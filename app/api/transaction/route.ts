@@ -63,64 +63,33 @@ import Transaction from "@/lib/database/models/transaction.model";
 import { connectToDatabase } from "@/utils/database";
 
 export async function POST(req: Request) {
-  console.log("🚀 Transaction API fired");
-
   try {
-    let rawBody: string | null = null;
-    try {
-      rawBody = await req.text();
-      console.log("📥 Raw request body:", rawBody);
-    } catch (err) {
-      console.error("❌ Failed to read raw body:", err);
+    const contentType = req.headers.get("content-type") || "";
+    let body: any = null;
+
+    if (contentType.includes("application/json")) {
+      body = await req.json().catch(() => null);
+    } else {
+      const text = await req.text().catch(() => null);
+      try { body = text ? JSON.parse(text) : null; } catch { return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: { "Content-Type": "application/json" } }); }
     }
 
-    let data: any = null;
-    try {
-      data = rawBody ? JSON.parse(rawBody) : null;
-      console.log("📥 Parsed data:", data);
-    } catch (err) {
-      console.error("❌ Failed to parse JSON:", err);
-      return new Response("Invalid JSON in request body", { status: 400 });
+    const lookupId = body?.transactionId ?? body?.id ?? null;
+    if (!lookupId) {
+      return new Response(JSON.stringify({ error: "Transaction ID is required" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    const { transactionId } = data || {};
-    if (!transactionId) {
-      console.warn("⚠️ Missing transaction ID in request body");
-      return new Response("Transaction ID is required", { status: 400 });
-    }
+    await connectToDatabase();
 
-    console.log("🔎 Searching for transaction with ID:", transactionId);
-
-    await connectToDatabase()
-      .then(() => console.log("✅ Database connection successful"))
-      .catch((err) => {
-        console.error("❌ Database connection failed:", err);
-        throw err;
-      });
-
-    const transaction = await Transaction.findOne({ transactionId })
-      .populate("user", "email")
-      .catch((err) => {
-        console.error("❌ DB query failed:", err);
-        throw err;
-      });
+    const transaction = await Transaction.findOne({ transactionId: lookupId }).populate("user", "email").exec();
 
     if (!transaction) {
-      console.warn("⚠️ Transaction not found in DB for ID:", transactionId);
-      return new Response("Transaction not found", { status: 404 });
+      return new Response(JSON.stringify({ error: "Transaction not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
 
-    console.log("✅ Transaction found:", JSON.stringify(transaction));
-
-    return new Response(JSON.stringify(transaction.toObject()), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error: any) {
-    console.error("🔥 API ERROR:", error?.message || error);
-    return new Response(
-      JSON.stringify({ error: error?.message || "Something went wrong" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify(transaction.toObject()), { status: 200, headers: { "Content-Type": "application/json" } });
+  } catch (err: any) {
+    console.error("API ERROR /api/transaction:", err);
+    return new Response(JSON.stringify({ error: err?.message || "Internal server error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
