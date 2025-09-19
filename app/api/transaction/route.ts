@@ -66,7 +66,6 @@ export async function POST(req: Request) {
   console.log("🚀 Transaction API fired");
 
   try {
-    // Read the raw body first
     let rawBody: string | null = null;
     try {
       rawBody = await req.text();
@@ -75,7 +74,6 @@ export async function POST(req: Request) {
       console.error("❌ Failed to read raw body:", err);
     }
 
-    // Parse JSON safely
     let data: any = null;
     try {
       data = rawBody ? JSON.parse(rawBody) : null;
@@ -85,17 +83,14 @@ export async function POST(req: Request) {
       return new Response("Invalid JSON in request body", { status: 400 });
     }
 
-    const { id } = data || {};
-    if (!id) {
+    const { transactionId } = data || {};
+    if (!transactionId) {
       console.warn("⚠️ Missing transaction ID in request body");
       return new Response("Transaction ID is required", { status: 400 });
     }
 
-    console.log("🔎 Searching for transaction with ID:", id);
+    console.log("🔎 Searching for transaction with ID:", transactionId);
 
-    console.log("🔍 Received ID from request body:", id, typeof id);
-    
-    // Connect to the database
     await connectToDatabase()
       .then(() => console.log("✅ Database connection successful"))
       .catch((err) => {
@@ -103,8 +98,7 @@ export async function POST(req: Request) {
         throw err;
       });
 
-    // Find the transaction by ID
-    const transaction = await Transaction.findOne({ transactionId: id })
+    const transaction = await Transaction.findOne({ transactionId })
       .populate("user", "email")
       .catch((err) => {
         console.error("❌ DB query failed:", err);
@@ -112,13 +106,12 @@ export async function POST(req: Request) {
       });
 
     if (!transaction) {
-      console.warn("⚠️ Transaction not found in DB for ID:", id);
+      console.warn("⚠️ Transaction not found in DB for ID:", transactionId);
       return new Response("Transaction not found", { status: 404 });
     }
 
     console.log("✅ Transaction found:", JSON.stringify(transaction));
 
-    // Convert to plain object before sending
     return new Response(JSON.stringify(transaction.toObject()), {
       status: 200,
       headers: { "Content-Type": "application/json" },

@@ -116,14 +116,15 @@ export const fetchCustomer = async (userId: string) => {
     throw error;
   }
 };
-export const fetchTransaction = async (id: string) => {
+export const fetchTransaction = async (transactionId: string) => {
   try {
     const res = await fetch("/api/transaction", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id }),
+      // body: JSON.stringify({ id }),
+      body: JSON.stringify({ transactionId }),
     });
 
     if (res.status !== 200) {
