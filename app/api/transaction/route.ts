@@ -62,33 +62,36 @@
 import Transaction from "@/lib/database/models/transaction.model";
 import { connectToDatabase } from "@/utils/database";
 
-// Define the request body type
-type TransactionRequest = {
-  id?: string;
-  transactionId?: string;
-};
-
 export async function POST(req: Request) {
   console.log("🚀 Transaction API fired");
 
   try {
-    // Parse incoming request body
-    const data = (await req.json().catch((err) => {
-      console.error("❌ Failed to parse request body:", err);
-      throw new Error("Invalid JSON in request body");
-    })) as TransactionRequest;
+    // Read the raw body first
+    let rawBody: string | null = null;
+    try {
+      rawBody = await req.text();
+      console.log("📥 Raw request body:", rawBody);
+    } catch (err) {
+      console.error("❌ Failed to read raw body:", err);
+    }
 
-    console.log("📥 Incoming data:", data);
+    // Parse JSON safely
+    let data: any = null;
+    try {
+      data = rawBody ? JSON.parse(rawBody) : null;
+      console.log("📥 Parsed data:", data);
+    } catch (err) {
+      console.error("❌ Failed to parse JSON:", err);
+      return new Response("Invalid JSON in request body", { status: 400 });
+    }
 
-    // Accept both `id` and `transactionId` from request body
-    const lookupId = data.id || data.transactionId;
-
-    if (!lookupId) {
+    const { id } = data || {};
+    if (!id) {
       console.warn("⚠️ Missing transaction ID in request body");
       return new Response("Transaction ID is required", { status: 400 });
     }
 
-    console.log("🔎 Searching for transaction with ID:", lookupId);
+    console.log("🔎 Searching for transaction with ID:", id);
 
     // Connect to the database
     await connectToDatabase()
@@ -99,7 +102,7 @@ export async function POST(req: Request) {
       });
 
     // Find the transaction by ID
-    const transaction = await Transaction.findOne({ transactionId: lookupId })
+    const transaction = await Transaction.findOne({ transactionId: id })
       .populate("user", "email")
       .catch((err) => {
         console.error("❌ DB query failed:", err);
@@ -107,7 +110,7 @@ export async function POST(req: Request) {
       });
 
     if (!transaction) {
-      console.warn("⚠️ Transaction not found in DB for ID:", lookupId);
+      console.warn("⚠️ Transaction not found in DB for ID:", id);
       return new Response("Transaction not found", { status: 404 });
     }
 
