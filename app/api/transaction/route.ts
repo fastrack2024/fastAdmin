@@ -64,32 +64,35 @@ import { connectToDatabase } from "@/utils/database";
 
 export async function POST(req: Request) {
   try {
-    const contentType = req.headers.get("content-type") || "";
-    let body: any = null;
+    const { transactionId } = await req.json();
 
-    if (contentType.includes("application/json")) {
-      body = await req.json().catch(() => null);
-    } else {
-      const text = await req.text().catch(() => null);
-      try { body = text ? JSON.parse(text) : null; } catch { return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: { "Content-Type": "application/json" } }); }
-    }
-
-    const lookupId = body?.transactionId ?? body?.id ?? null;
-    if (!lookupId) {
-      return new Response(JSON.stringify({ error: "Transaction ID is required" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    if (!transactionId) {
+      return new Response(JSON.stringify({ error: "Transaction ID is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     await connectToDatabase();
 
-    const transaction = await Transaction.findOne({ transactionId: lookupId }).populate("user", "email").exec();
+    const transaction = await Transaction.findOne({ transactionId }).populate("user", "email");
 
     if (!transaction) {
-      return new Response(JSON.stringify({ error: "Transaction not found" }), { status: 404, headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Transaction not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
-    return new Response(JSON.stringify(transaction.toObject()), { status: 200, headers: { "Content-Type": "application/json" } });
-  } catch (err: any) {
-    console.error("API ERROR /api/transaction:", err);
-    return new Response(JSON.stringify({ error: err?.message || "Internal server error" }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify(transaction.toObject()), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error: any) {
+    console.error("🔥 API ERROR:", error);
+    return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
