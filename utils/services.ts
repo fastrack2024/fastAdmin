@@ -117,43 +117,46 @@ export const fetchCustomer = async (userId: string) => {
   }
 };
 
-export const fetchTransaction = async (transactionId: string) => {
-  const res = await fetch("/api/transaction", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ transactionId }),
-  });
+export const fetchTransaction = async (id: string) => {
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error || "Failed to fetch transaction");
+  try {
+
+    const res = await fetch("/api/transaction", {
+
+      method: "POST",
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+      },
+
+      body: JSON.stringify({ id }),
+
+    });
+
+
+
+    if (res.status !== 200) {
+
+      const error = await res.json();
+
+      throw new Error(error.message);
+
+    }
+
+
+
+    return res.json();
+
+  } catch (error) {
+
+    throw error;
+
   }
 
-  return res.json();
 };
 
-
-// export const fetchTransaction = async (transactionId: string) => {
-//   try {
-//     const res = await fetch("/api/transaction", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       // body: JSON.stringify({ id }),
-//       body: JSON.stringify({ transactionId }),
-//     });
-
-//     if (res.status !== 200) {
-//       const error = await res.json();
-//       throw new Error(error.message);
-//     }
-
-//     return res.json();
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 
 export const runTransaction = async (payload: RunTransactionType) => {
   try {
