@@ -123,7 +123,7 @@ export const fetchTransaction = async (id: string) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ transactionId: id }),
+      body: JSON.stringify({ id }),
     });
 
     if (res.status !== 200) {
