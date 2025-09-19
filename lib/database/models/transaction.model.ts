@@ -1,4 +1,4 @@
-import { model, models, Schema, Document } from "mongoose";
+import { model, models, Schema, Document, Types } from "mongoose";
 
 // TypeScript interface matching the Mongoose schema style
 export interface ITransaction extends Document {
