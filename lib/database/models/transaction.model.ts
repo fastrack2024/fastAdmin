@@ -14,7 +14,8 @@ export interface ITransaction extends Document {
   amount: number;
   status: "pending" | "success" | "error";
   fee: number;
-  user: string;
+  // user: string;
+  user: Types.ObjectId; // 👈 correct type
 }
 
 const transactionSchema = new Schema(

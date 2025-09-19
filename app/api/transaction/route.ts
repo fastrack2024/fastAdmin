@@ -68,23 +68,22 @@ export async function POST(req: Request) {
     console.log("📥 Incoming body:", body);
 
     const { transactionId } = body;
-
     if (!transactionId) {
-      console.error("❌ Missing transactionId in request body");
-      return new Response(JSON.stringify({ error: "Transaction ID is required" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Transaction ID is required" }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
     }
 
     await connectToDatabase();
-    console.log("✅ Database connected");
 
-    const transaction = await Transaction.findOne({ transactionId }).populate("user", "email");
+    const transaction = await Transaction.findOne({ transactionId }).populate(
+      "user",
+      "email",
+    ); // 👈 populate email
     console.log("🔎 Query result:", transaction);
 
     if (!transaction) {
-      console.error("❌ Transaction not found for ID:", transactionId);
       return new Response(JSON.stringify({ error: "Transaction not found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
@@ -97,9 +96,9 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("🔥 API ERROR:", error);
-    return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: error.message || "Internal Server Error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
   }
 }
